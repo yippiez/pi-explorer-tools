@@ -1,0 +1,32 @@
+{
+  "name": "pi-explorer-tools",
+  "version": "0.1.0",
+  "description": "File explorer tools (ls, rd) for Pi.",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "explorer",
+    "file-tools"
+  ],
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yippiez/pi-explorer-tools.git"
+  },
+  "files": [
+    "extensions",
+    "README.md",
+    "LICENSE"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions"
+    ]
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-ai": "*",
+    "@mariozechner/pi-coding-agent": "*",
+    "@mariozechner/pi-tui": "*"
+  }
+}
