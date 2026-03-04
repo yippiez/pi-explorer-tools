@@ -42,6 +42,57 @@ const renderResult = (result: any, { expanded, isPartial }: any, theme: any, get
 };
 
 export default function (pi: ExtensionAPI) {
+  const EXPLORER_TOOLS = ["ls", "rd"];
+  let originalTools: string[] = [];
+  let enabled = false;
+
+  const captureAndEnable = () => {
+    originalTools = pi.getActiveTools().filter(t => !EXPLORER_TOOLS.includes(t));
+    enabled = true;
+    pi.setActiveTools(EXPLORER_TOOLS);
+  };
+
+  const enableExplorerTools = (ctx: any) => {
+    if (enabled) {
+      if (ctx.hasUI) ctx.ui.notify("Explorer tools already enabled", "warning");
+      return;
+    }
+    try {
+      captureAndEnable();
+      if (ctx.hasUI) ctx.ui.notify("Explorer tools enabled: ls, rd", "info");
+    } catch (e: any) {
+      if (ctx.hasUI) ctx.ui.notify(`Error enabling explorer tools: ${e.message}`, "error");
+    }
+  };
+
+  const disableExplorerTools = (ctx: any) => {
+    if (!enabled) {
+      if (ctx.hasUI) ctx.ui.notify("Explorer tools already disabled", "warning");
+      return;
+    }
+    try {
+      enabled = false;
+      pi.setActiveTools(originalTools);
+      if (ctx.hasUI) ctx.ui.notify(`Tools restored: ${originalTools.join(", ")}`, "info");
+    } catch (e: any) {
+      if (ctx.hasUI) ctx.ui.notify(`Error restoring tools: ${e.message}`, "error");
+    }
+  };
+
+  pi.registerCommand("explorer-tools:enable", {
+    description: "Switch to explorer-only tools (ls, rd)",
+    handler: async (_args, ctx) => {
+      enableExplorerTools(ctx);
+    },
+  });
+
+  pi.registerCommand("explorer-tools:disable", {
+    description: "Switch back to original tools",
+    handler: async (_args, ctx) => {
+      disableExplorerTools(ctx);
+    },
+  });
+
   pi.registerTool({
     name: "ls",
     label: "List files",
@@ -116,6 +167,12 @@ export default function (pi: ExtensionAPI) {
     renderResult: (result: any, ctx: any, theme: any) => renderResult(result, ctx, theme, r => r.content?.[0]?.text ?? ""),
   });
 
-  try { pi.setActiveTools(["ls", "rd"]); } catch {}
-  pi.on("session_start", async (_e, ctx) => { try { pi.setActiveTools(["ls", "rd"]); if (ctx.hasUI) ctx.ui.notify("Active: ls, rd", "info"); } catch {} });
+  try { captureAndEnable(); } catch {}
+
+  pi.on("session_start", async (_e, ctx) => {
+    try {
+      if (!enabled) captureAndEnable();
+      if (ctx.hasUI) ctx.ui.notify("Active: ls, rd", "info");
+    } catch {}
+  });
 }

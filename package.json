@@ -1,6 +1,6 @@
 {
   "name": "pi-explorer-tools",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "File explorer tools (ls, rd) for Pi.",
   "type": "module",
   "keywords": [
@@ -21,7 +21,7 @@
   ],
   "pi": {
     "extensions": [
-      "./extensions"
+      "./extensions/explorer-tools/index.ts"
     ]
   },
   "peerDependencies": {
